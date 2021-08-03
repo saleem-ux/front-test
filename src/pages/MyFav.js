@@ -12,7 +12,7 @@ class MyFav extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      url: 'https://drinks-301.herokuapp.com/',
+      url: 'https://drinks-301.herokuapp.com',
       allFav: [],
       showFav: false,
       index: 0,
