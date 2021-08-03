@@ -1,126 +1,100 @@
-import React from 'react';
+import React, { Component } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+// import { Card, Button, Modal, Form } from 'react-bootstrap';
 import { withAuth0 } from '@auth0/auth0-react';
-// import { Card,Button } from 'react-bootstrap';
-import UpdateFormModel from './UpdateFormModel';
 import MyFavCard from './MyFavCard';
+import UpdateFormModel from './UpdateFormModel';
 
-class MyFav extends React.Component {
-  constructor(props){
+
+
+class MyFav extends Component {
+  constructor(props) {
     super(props);
-    this.state={
-      url:process.env.REACT_APP_SERVER,
-      dataList:[],
-      showData:false,
-      theName:'',
-      theLevel:'',
-      theImg:'',
+    this.state = {
+      url: 'https://drinks-301.herokuapp.com/',
+      allFav: [],
+      showFav: false,
       index: 0,
-      
-      showModel:false
+      showModal: false,
+      strDrink: '',
+      strDrinkThumb: '',
+      idDrink: ''
     }
-
   }
 
-componentDidMount=async()=>{
-  const {user} = this.props.auth0
-  axios.get(`${this.state.url}/fav?email=${user.email}`).then(result=>{
-    this.setState({
-      dataList:result.data,
-      showData:true,
+  componentDidMount = async () => {
+    axios.get(`${this.state.url}/fav?email=${this.props.auth0.user.email}`).then(result => {
+      this.setState({
+        allFav: result.data,
+        showFav: true
+      })
     })
-    console.log(result);
-  })
-}
-/////////////////////////////////////////////////////
-//  Delete Function
-deleteData=async(index)=>{
-  const {user} = this.props.auth0
-
-axios.delete(`${this.state.url}/fav/${index}?email=${user.email}`).then(result=>{
-  this.setState({
-    dataList:result.data,
-    showData:true,
-  })
-  console.log(result);
-})
-}
-
-/////////////////////////////////////////////
-updateData = async (event) => {
-  event.preventDefault();
-
-  const { user } = this.props.auth0;
-  const updateDataQuery = {
-    name: event.target.name.value,
-    level:event.target.level.value,
-    img: event.target.img.value,
-    email: user.email
-
   }
-  console.log('aaaaaaaaaaaaaaaaaaaaaaa', event.target.level.value)
-    console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbb', this.state.index)
-   axios.put(`${process.env.REACT_APP_SERVER}/fav/${this.state.index}`, updateDataQuery).then(result=>{
-    // console.log('llllllllllllllllllllllllllllll', result)
-    this.setState({
-      dataList:result.data,
-      // showData:true,
+
+  deleteFav = async (index) => {
+    axios.delete(`${this.state.url}/fav/${index}?email=${this.props.auth0.user.email}`).then(result => {
+      this.setState({
+        allFav: result.data,
+        showFav: true
+      })
     })
-    console.log(result);
-  })
-  this.componentDidMount();
+  }
 
-}
+  updateFav = async (event) => {
+    event.preventDefault();
+    const reqbody = {
+      email: this.props.auth0.user.email,
+      strDrink: event.target.name.value,
+      strDrinkThumb: event.target.img.value,
+      idDrink: event.target.level.value
+    }
+    axios.put(`${this.state.url}/fav/${this.state.index}`, reqbody).then(result => {
+      this.setState({
+        allFav: result.data
+      })
+    })
+  }
 
-handleShow = (index) => {
-  this.setState({
-      showModel: true,
-      index:index,
-    theName:this.state.dataList[index].name,
-    theLevel:this.state.dataList[index].level,
-    theImg:this.state.dataList[index].img,
-  })
-  console.log(this.state.dataList[index].name);
-}
+  handleClose = () => {
+    this.setState({
+      showModal: false
+    })
+  }
 
-handleClose = () => {
-  this.setState({
-      showModel: false
-  })
-}
-
-
+  handleShow = (index) => {
+    this.setState({
+      showModal: true,
+      index: index,
+      strDrink: this.state.allFav[index].strDrink,
+      strDrinkThumb: this.state.allFav[index].strDrinkThumb,
+      idDrink: this.state.allFav[index].idDrink
+    })
+  }
 
 
   render() {
-    return(
+    return (
       <>
-      <MyFavCard showData={this.state.showData} dataList={this.state.dataList} handleShow={this.handleShow} deleteData={this.deleteData}  />
-      
-        {/* {this.state.showData && this.state.dataList.map((item, index) => {
+        <MyFavCard showData={this.state.showFav} allFav={this.state.allFav} handleShow={this.handleShow} deleteData={this.deleteFav} />
+        <UpdateFormModel showModal={this.state.showModal} handleShow={this.handleShow} handleClose={this.handleClose} updateData={this.updateFav} dataList={this.state.allFav} theName={this.state.strDrink} theLevel={this.state.idDrink} theImg={this.state.strDrinkThumb} />
+        {/* {this.state.showFav && this.state.allFav.map(item => {
           return (
-            <>
-             
-              <Card style={{ width: "18rem", margin: "1.5rem", display: "inline-block", }}                >                 
-               <Card.Img variant="top" src={item.img} alt="" />                  
-               <Card.Body>                    
-                 <Card.Title>{item.name}</Card.Title>                    
-                 <Card.Text>{item.level}</Card.Text>                    
-                 <Button onClick={()=>{this.handleShow(index)}}>Update</Button>   
-                 <br></br>               
-                 <Button onClick={()=>{this.deleteData(index)}}>Delete</Button>                  
-                 </Card.Body>                
-                 </Card>
-            </>
-            
-        )
-        
-      })} */}
-      <>
-      <UpdateFormModel showModel={this.state.showModel} handleShow={this.handleShow} handleClose={this.handleClose} updateData={this.updateData}  dataList={this.state.dataList} theName={this.state.theName} theLevel={this.state.theLevel} theImg={this.state.theImg} />
+            <Card style={{ width: '18rem', display: 'inline-block' }}>
+              <Card.Img variant="top" src={item.strDrinkThumb} />
+              <Card.Body>
+                <Card.Title>{item.strDrink}</Card.Title>
+                <Card.Text>
+                  {item.idDrink}
+                </Card.Text>
+                <Button variant="primary" onClick={() => { this.deleteFav(item) }}>Delete</Button>
+                <Button variant="primary" onClick={() => { this.handleShow(this.state.index) }}>Update</Button>
+              </Card.Body>
+            </Card>
+          )
+        })} */}
+
       </>
-            </>
     )
   }
 }

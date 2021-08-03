@@ -4,7 +4,7 @@ import Footer from './Footer';
 import Login from './Login';
 import Profile from './pages/Profile';
 import MyFav from './pages/MyFav';
-import APIData from './pages/API-Data';
+import APIData from './pages/APIData';
 import { withAuth0 } from '@auth0/auth0-react';
 import {
   BrowserRouter as Router,

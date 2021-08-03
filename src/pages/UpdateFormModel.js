@@ -9,9 +9,9 @@ export class UpdateFormModel extends Component {
         return (
             <div>
                 
-                {this.props.showModel && (
+                {this.props.showModal && (
 
-                    <Modal show={this.props.showModel} onHide={this.props.handleClose}>
+                    <Modal show={this.props.showModal} onHide={this.props.handleClose}>
                         <Modal.Header closeButton>
                             <Modal.Title>Update Modal</Modal.Title>
                         </Modal.Header>
